@@ -1,0 +1,78 @@
+afficher "? "
+lire ligne
+lire_lexeme()
+si type_lexeme != FINDELIGNE
+	  v = lire_expression()
+	  vérifier que type_lexeme == FINDELIGNE
+	  afficher "= ", v
+
+
+pos = 0;
+fonction lire_lexeme ()
+{
+lexeme = ""
+tant que  pos < longueur(ligne) et ligne[pos] est un espace
+   faire  pos ++
+si pos >= longueur(ligne)
+	type_lexeme = FINDELIGNE
+sinon
+   selon ligne[pos]
+	 si c'est un chiffre faire
+		 type_lexeme = NOMBRE
+		 tant que  pos < longueur(ligne) et ligne[pos] est un chiffre
+		   faire
+			  lexeme += ligne[pos]
+			  pos ++
+	 sinon si c'est +,-,*,/,(,)
+			   type_lexeme = SYMBOLE
+			   lexeme += ligne[pos]
+			   pos ++
+	 sinon erreur "caractère illégal"
+}
+
+fonction lire_facteur() retourne un nombre
+{
+ si type_lexeme == SYMBOLE et lexeme = "("
+	alors
+		lire_lexeme()       // pour dépasser la parenthèse ouvrante
+		v = lire_expression()
+		verifier que type_lexeme == SYMBOLE et lexeme == ")"
+lire_lexeme() // pour dépasser la parenthèse fermante
+
+	sinon
+		v = lire_nombre()
+ retourner v
+}
+
+fonction lire_terme()  retourne un nombre  // V2
+{
+ a = lire_facteur()                     // <--- changement
+ tant que type_lexeme == SYMBOLE et lexeme = "*" ou "/"
+   faire
+	   op = lexeme
+	   b = lire_facteur()               // <--- changement
+	   selon op :
+		si  "*" alors  a = a * b
+		si  "/"  alors  a = a / b   (erreur si b = 0)
+}
+
+fonction lire_expression()  retourne un nombre // V2
+{
+ a = lire_terme()                          // <-- changement
+ tant que type_lexeme == SYMBOLE et lexeme = "+" ou "-"
+   faire
+	   op = lexeme
+	   b = lire_terme()                    // <-- changement
+	   selon op :
+		si  "+" alors  a = a + b
+		si  "-" alors  a = a - b
+}
+
+fonction lire_nombre() retourne un nombre
+{
+  si type_lexeme != NOMBRE
+	 alors erreur nombre attendu
+  v = valeur(lexeme)
+  lire_lexeme()
+  retourner v
+}
